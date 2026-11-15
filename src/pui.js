@@ -206,7 +206,68 @@ function toast(message, { title, type = "accent", duration = 4000 } = {}) {
 
 /* ---- command palette ------------------------------------------------------------------------- */
 
+function bindCmdk(cmdk) {
+  if (cmdk.dataset.bound) return;
+  cmdk.dataset.bound = "1";
+  const input = cmdk.querySelector(".cmdk-input");
+  const list = cmdk.querySelector(".cmdk-list");
+  const items = () => [...list.querySelectorAll(".cmdk-item")];
+
+  input?.addEventListener("input", () => {
+    const q = input.value.trim().toLowerCase();
+    let first = true;
+    for (const item of items()) {
+      const hit = !q || item.textContent.toLowerCase().includes(q);
+      item.hidden = !hit;
+      if (hit && first) {
+        item.setAttribute("aria-selected", "true");
+        first = false;
+      } else {
+        item.removeAttribute("aria-selected");
+      }
+    }
+    list.querySelector(".cmdk-empty")?.toggleAttribute("hidden", !first);
+  });
+
+  cmdk.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const sel = list.querySelector('.cmdk-item[aria-selected="true"]:not([hidden])');
+      if (sel) runCmd(sel);
+      return;
+    }
+    if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
+    e.preventDefault();
+    const visible = items().filter((i) => !i.hidden);
+    if (!visible.length) return;
+    let idx = visible.findIndex((i) => i.getAttribute("aria-selected") === "true");
+    idx = e.key === "ArrowDown" ? (idx + 1) % visible.length : (idx - 1 + visible.length) % visible.length;
+    visible.forEach((i) => i.removeAttribute("aria-selected"));
+    visible[idx].setAttribute("aria-selected", "true");
+    visible[idx].scrollIntoView({ block: "nearest" });
+    input?.focus();
+  });
+
+  // reset filter each time the palette opens
+  cmdk.addEventListener("open", () => {
+    if (input) input.value = "";
+    for (const item of items()) {
+      item.hidden = false;
+      item.removeAttribute("aria-selected");
+    }
+  });
+}
+
+function openCmdk(cmdk) {
+  cmdk.showModal();
+  cmdk.querySelector(".cmdk-input")?.focus();
+}
+
 function initCmdk() {
+  // bind every palette at boot so filtering works regardless of how the
+  // dialog was opened (⌘K, [data-cmdk], or a plain showModal())
+  for (const cmdk of document.querySelectorAll("dialog.cmdk")) bindCmdk(cmdk);
+
   document.addEventListener("keydown", (e) => {
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
       e.preventDefault();
@@ -229,58 +290,6 @@ function initCmdk() {
       runCmd(item);
     }
   });
-}
-
-function openCmdk(cmdk) {
-  if (!cmdk.dataset.bound) {
-    cmdk.dataset.bound = "1";
-    const input = cmdk.querySelector(".cmdk-input");
-    const list = cmdk.querySelector(".cmdk-list");
-    const items = () => [...list.querySelectorAll(".cmdk-item")];
-
-    input?.addEventListener("input", () => {
-      const q = input.value.trim().toLowerCase();
-      let first = true;
-      for (const item of items()) {
-        const hit = !q || item.textContent.toLowerCase().includes(q);
-        item.hidden = !hit;
-        if (hit && first) {
-          item.setAttribute("aria-selected", "true");
-          first = false;
-        } else {
-          item.removeAttribute("aria-selected");
-        }
-      }
-      list.querySelector(".cmdk-empty")?.toggleAttribute("hidden", first);
-    });
-
-    cmdk.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        const sel = list.querySelector('.cmdk-item[aria-selected="true"]:not([hidden])');
-        if (sel) runCmd(sel);
-        return;
-      }
-      if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
-      e.preventDefault();
-      const visible = items().filter((i) => !i.hidden);
-      if (!visible.length) return;
-      let idx = visible.findIndex((i) => i.getAttribute("aria-selected") === "true");
-      idx = e.key === "ArrowDown" ? (idx + 1) % visible.length : (idx - 1 + visible.length) % visible.length;
-      visible.forEach((i) => i.removeAttribute("aria-selected"));
-      visible[idx].setAttribute("aria-selected", "true");
-      visible[idx].scrollIntoView({ block: "nearest" });
-      input?.focus();
-    });
-
-    // reset filter on open
-    cmdk.addEventListener("open", () => {
-      if (input) input.value = "";
-      for (const item of items()) item.hidden = false;
-    });
-  }
-  cmdk.showModal();
-  cmdk.querySelector(".cmdk-input")?.focus();
 }
 
 function runCmd(item) {

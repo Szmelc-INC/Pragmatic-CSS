@@ -12,6 +12,60 @@
 
 ---
 
+## Gallery
+
+One design system, two themes, one accent variable. The ops dashboard demo, dark and light — same markup, only tokens differ:
+
+<p align="center">
+  <img src="docs/img/comp-themes.png" alt="OpsCenter dashboard — dark and light theme">
+</p>
+
+The entire system retints from a single OKLCH hue variable — surfaces, accents, focus rings, status colors, shadows, even the card borders:
+
+<p align="center">
+  <img src="docs/img/comp-hues.png" alt="One variable --pui-hue retints the whole system: violet, amber, cyan">
+</p>
+
+**Components** (all live and interactive in [`docs/index.html`](docs/index.html)):
+
+<p align="center">
+  <img src="docs/img/10-buttons.png" alt="Buttons — 6 variants, 3 sizes, busy state" width="49%">&nbsp;<img src="docs/img/11-badges.png" alt="Badges and status dots" width="49%">
+</p>
+<p align="center">
+  <img src="docs/img/13-metrics.png" alt="Metric cards" width="49%">&nbsp;<img src="docs/img/14-timeline-log.png" alt="Timeline and live log stream" width="49%">
+</p>
+<p align="center">
+  <img src="docs/img/15-forms.png" alt="Forms — fields, switches, validation" width="49%">&nbsp;<img src="docs/img/16-table.png" alt="Data table" width="49%">
+</p>
+<p align="center">
+  <img src="docs/img/17-tabs-tags-kv.png" alt="Tabs, tags, key-value grids" width="49%">&nbsp;<img src="docs/img/19-feedback.png" alt="Avatars, pagination, skeletons, stepper" width="49%">
+</p>
+
+**Overlays** — native `<dialog>`, CSS-only dropdowns and tooltips, toasts, and the ⌘K command palette:
+
+<p align="center">
+  <img src="docs/img/18-overlays-row.png" alt="Overlay triggers" width="99%">
+</p>
+<p align="center">
+  <img src="docs/img/21-dialog-dark.png" alt="Modal dialog" width="32%">&nbsp;<img src="docs/img/22-cmdk-filtered.png" alt="Command palette with live filtering" width="32%">&nbsp;<img src="docs/img/23-dropdown-open.png" alt="CSS-only dropdown menu" width="32%">
+</p>
+<p align="center">
+  <img src="docs/img/25-toasts.png" alt="Toast notifications" width="32%">&nbsp;<img src="docs/img/24-tooltip.png" alt="CSS-only tooltips" width="64%">
+</p>
+
+**Demos** — [dashboard](docs/demo-dashboard.html) · [admin](docs/demo-admin.html) · [chat](docs/demo-chat.html):
+
+<p align="center">
+  <img src="docs/img/40-admin-general.png" alt="Admin settings" width="49%">&nbsp;<img src="docs/img/50-chat-dark.png" alt="AI chat UI" width="49%">
+</p>
+<p align="center">
+  <img src="docs/img/01-hero-dark.png" alt="Docs site hero" width="66%">&nbsp;<img src="docs/img/36-mobile-drawer.png" alt="Mobile drawer navigation" width="29%">
+</p>
+
+*(All screenshots are captured with a CDP-driven headless Chromium — pixel-exact element clips, no mockups.)*
+
+---
+
 ## What this is
 
 Pragmatic UI (short: **pui**) is the evolution of this repository — the old
