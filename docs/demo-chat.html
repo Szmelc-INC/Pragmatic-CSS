@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en" data-hue="violet">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Assistant — Pragmatic UI demo</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='4' y='4' width='24' height='24' rx='7' fill='%23a78bfa'/%3E%3C/svg%3E">
+  <script>
+  try {
+    const p = new URLSearchParams(location.search);
+    const t = p.get("theme") || localStorage.getItem("pui-theme");
+    if (t) document.documentElement.dataset.theme = t;
+    const h = p.get("hue"); if (h) document.documentElement.dataset.hue = h;
+    const d = p.get("density"); if (d) document.documentElement.dataset.density = d;
+  } catch {}
+</script>
+  <link rel="stylesheet" href="../src/pui.css">
+  <style>
+    /* chat-specific layout — built only from pui primitives */
+    .chat-grid { display: grid; grid-template-columns: 280px minmax(0, 1fr); height: 100dvh; }
+    .chat-list { border-inline-end: 1px solid var(--pui-line); padding: 14px 12px; overflow-y: auto; }
+    .chat-item { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: var(--pui-r-m);
+                 text-decoration: none; color: var(--pui-muted); transition: background var(--pui-dur); }
+    .chat-item:hover { background: var(--pui-hover); color: var(--pui-text); text-decoration: none; }
+    .chat-item[aria-current="true"] { background: var(--pui-accent-soft); color: var(--pui-accent-strong); }
+    .chat-item .title { font-size: 0.85rem; font-weight: 550; }
+    .chat-item .prev { font-size: 0.75rem; color: var(--pui-faint); }
+    .chat-main { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; height: 100dvh; }
+    .chat-thread { overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 20px;
+                   max-width: 860px; width: 100%; margin-inline: auto; }
+    .msg { display: flex; gap: 12px; }
+    .msg .bubble { min-width: 0; }
+    .msg-user { justify-content: flex-end; }
+    .msg-user .bubble {
+      background: var(--pui-accent-soft);
+      border: 1px solid color-mix(in oklab, var(--pui-accent) 25%, transparent);
+      border-radius: var(--pui-r-l) var(--pui-r-l) 4px var(--pui-r-l);
+      padding: 10px 16px; max-width: 70ch; font-size: 0.9rem;
+    }
+    .chat-composer { padding: 14px 24px 18px; }
+    .composer { display: flex; gap: 10px; align-items: flex-end; max-width: 860px; margin-inline: auto;
+                background: var(--pui-surface); border: 1px solid var(--pui-line-strong);
+                border-radius: var(--pui-r-l); padding: 10px 12px;
+                transition: border-color var(--pui-dur), box-shadow var(--pui-dur); }
+    .composer:focus-within { border-color: var(--pui-accent); box-shadow: 0 0 0 3px var(--pui-ring); }
+    .composer textarea { background: transparent; border: 0; box-shadow: none; padding: 4px 6px; min-height: 24px;
+                         max-height: 160px; resize: none; }
+    .composer textarea:focus-visible { outline: none; box-shadow: none; }
+    @media (max-width: 900px) { .chat-grid { grid-template-columns: minmax(0, 1fr); } .chat-list { display: none; } }
+  </style>
+</head>
+<body>
+
+<div class="chat-grid">
+
+  <!-- conversations -->
+  <aside class="chat-list">
+    <div class="row between" style="margin-bottom:14px">
+      <a class="topbar-brand" href="demo-chat.html">Assistant</a>
+      <button class="btn btn-icon btn-ghost" data-theme-toggle aria-label="Toggle theme">◐</button>
+    </div>
+    <button class="btn btn-primary btn-block" style="margin-bottom:14px">+ New chat</button>
+    <div class="sidebar-label">Today</div>
+    <a class="chat-item" href="#" aria-current="true">
+      <span class="dot" style="color:var(--pui-accent);margin-top:6px"></span>
+      <div class="grow truncate"><div class="title">Cluster memory investigation</div><div class="prev truncate">node-04 is at 78% sustained…</div></div>
+    </a>
+    <a class="chat-item" href="#">
+      <div class="grow truncate"><div class="title">Deploy checklist v4.3</div><div class="prev truncate">smoke tests + canary plan</div></div>
+    </a>
+    <div class="sidebar-label">Yesterday</div>
+    <a class="chat-item" href="#">
+      <div class="grow truncate"><div class="title">Rate limiter design review</div><div class="prev truncate">token bucket vs sliding window…</div></div>
+    </a>
+    <a class="chat-item" href="#">
+      <div class="grow truncate"><div class="title">Docker prune cron</div><div class="prev truncate">weekly, Sundays 04:00</div></div>
+    </a>
+    <div class="sidebar-footer">
+      <div class="row gap-sm"><span class="avatar avatar-sm">SJ</span> szmelc<span class="grow"></span><span class="badge badge-ok">pro</span></div>
+    </div>
+  </aside>
+
+  <!-- main -->
+  <div class="chat-main">
+    <header class="topbar" style="padding-inline:24px">
+      <h1 style="margin:0;font-size:1rem;font-weight:650" class="truncate">Cluster memory investigation</h1>
+      <div class="topbar-actions">
+        <span class="badge badge-ok"><span class="dot"></span>connected</span>
+        <button class="btn btn-ghost btn-icon" data-tip="Export chat" aria-label="Export">⤓</button>
+        <button class="btn btn-ghost btn-icon" data-tip="Rename chat" aria-label="Rename">✎</button>
+      </div>
+    </header>
+
+    <div class="chat-thread scroll-y">
+
+      <div class="msg msg-user">
+        <div class="bubble">node-04 keeps climbing past the memory threshold. Give me the current picture and what you'd do about it.</div>
+      </div>
+
+      <div class="msg">
+        <span class="avatar">P</span>
+        <div class="bubble grow stack">
+          <p class="small muted" style="margin:0 0 6px">PUI-2 <span class="badge badge-accent" style="vertical-align:1px">analysis</span></p>
+          <p class="small" style="margin:0 0 12px">Memory on node-04 has been above the 75% threshold for 12 minutes. Current breakdown and recommended action below — short version: it's the backup-queue worker pool, not the cache.</p>
+
+          <div class="grid cols-3">
+            <div class="card" style="padding:14px">
+              <div class="metric-label">Memory</div>
+              <div class="metric-value warn" style="font-size:1.4rem">78%</div>
+              <div class="progress sm warn" style="margin-top:8px"><div class="progress-fill" style="width:78%"></div></div>
+            </div>
+            <div class="card" style="padding:14px">
+              <div class="metric-label">Swap</div>
+              <div class="metric-value" style="font-size:1.4rem">0.4<span class="small muted">/8 GB</span></div>
+              <div class="metric-sub" style="margin-top:8px">healthy headroom</div>
+            </div>
+            <div class="card" style="padding:14px">
+              <div class="metric-label">Top consumer</div>
+              <div class="metric-value" style="font-size:1.4rem">backup-queue</div>
+              <div class="metric-sub" style="margin-top:8px">9.6 GB · +41% in 2h</div>
+            </div>
+          </div>
+
+          <div class="alert alert-warn" style="margin-top:12px">
+            <div><div class="alert-title">Likely leak</div><p class="alert-body">Worker pool grows by ~80 MB per job batch without releasing buffers. Matches the pattern fixed in v1.9.0 (not yet deployed).</p></div>
+          </div>
+
+          <details style="margin-top:10px">
+            <summary><strong>› Recommended sequence</strong> <span class="muted small">— 3 steps</span></summary>
+            <ol class="small muted" style="margin-top:8px">
+              <li>Restart backup-queue on node-04 (drops leak pressure immediately).</li>
+              <li>Deploy v1.9.0 to the queue service only (fixes the leak).</li>
+              <li>Re-check memory after 30 min; alert clears below 75%.</li>
+            </ol>
+          </details>
+        </div>
+      </div>
+
+      <div class="msg msg-user">
+        <div class="bubble">Do it. Queue only, nothing else touches prod.</div>
+      </div>
+
+      <div class="msg">
+        <span class="avatar">P</span>
+        <div class="bubble grow stack">
+          <p class="small" style="margin:0">Plan locked: queue-only rollout, canary 10% for 15 minutes, auto-rollback on error rate &gt; 1%.</p>
+          <div class="card" style="padding:14px;margin-top:10px">
+            <ol class="stepper">
+              <li data-done><span class="step-dot">✓</span>Drain node-04</li>
+              <li aria-current="step"><span class="step-dot">2</span>Canary 10%</li>
+              <li><span class="step-dot">3</span>Full rollout</li>
+              <li><span class="step-dot">4</span>Verify</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- composer -->
+    <div class="chat-composer">
+      <div class="composer">
+        <button class="btn btn-ghost btn-icon" data-tip="Attach file" aria-label="Attach">📎</button>
+        <textarea rows="1" placeholder="Message the assistant…  (⏎ send, ⇧⏎ newline)" aria-label="Message"></textarea>
+        <button class="btn btn-ghost btn-icon" data-tip="Voice input" aria-label="Voice">🎙</button>
+        <button class="btn btn-primary btn-icon" data-tip="Send" aria-label="Send" onclick="pui.toast('Demo UI — no backend connected', { type: 'info', title: 'Pragmatic UI' })">➤</button>
+      </div>
+      <div class="row between tiny faint" style="margin-top:8px; max-width:860px; margin-inline:auto">
+        <span>Pragmatic UI renders this interface with zero framework JS.</span>
+        <span class="row gap-sm"><kbd>⌘K</kbd> commands</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="../src/pui.js"></script>
+</body>
+</html>

@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en" data-hue="violet">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Settings — Pragmatic UI demo</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='4' y='4' width='24' height='24' rx='7' fill='%23a78bfa'/%3E%3C/svg%3E">
+  <script>
+  try {
+    const p = new URLSearchParams(location.search);
+    const t = p.get("theme") || localStorage.getItem("pui-theme");
+    if (t) document.documentElement.dataset.theme = t;
+    const h = p.get("hue"); if (h) document.documentElement.dataset.hue = h;
+    const d = p.get("density"); if (d) document.documentElement.dataset.density = d;
+  } catch {}
+</script>
+  <link rel="stylesheet" href="../src/pui.css">
+</head>
+<body>
+
+<div class="app-shell">
+
+  <header class="topbar">
+    <button class="btn btn-ghost btn-icon" data-sidebar-toggle aria-label="Toggle sidebar">☰</button>
+    <a class="topbar-brand" href="demo-dashboard.html">OpsCenter</a>
+    <span class="badge">workspace: szmelc</span>
+    <div class="topbar-actions">
+      <button class="btn btn-icon btn-ghost" data-cmdk="cmdk" data-tip="Search (⌘K)" aria-label="Search">🔍</button>
+      <button class="btn btn-icon btn-ghost" data-theme-toggle aria-label="Toggle theme">◐</button>
+      <span class="avatar">SJ</span>
+    </div>
+  </header>
+
+  <aside class="sidebar">
+    <nav>
+      <ul class="sidebar-nav">
+        <li class="sidebar-label">Monitoring</li>
+        <li><a class="sidebar-item" href="demo-dashboard.html">📊 Overview</a></li>
+        <li><a class="sidebar-item" href="#">🖥 Nodes</a></li>
+        <li><a class="sidebar-item" href="#">🚨 Alerts</a></li>
+        <li class="sidebar-label">Configuration</li>
+        <li><a class="sidebar-item" href="#" aria-current="page">⚙ Settings</a></li>
+        <li><a class="sidebar-item" href="#">👥 Members <span class="badge">8</span></a></li>
+        <li><a class="sidebar-item" href="#">🔑 API keys</a></li>
+        <li class="sidebar-label">Resources</li>
+        <li><a class="sidebar-item" href="index.html">📚 Docs</a></li>
+        <li><a class="sidebar-item" href="demo-chat.html">💬 Support</a></li>
+      </ul>
+    </nav>
+    <div class="sidebar-footer">workspace: szmelc · pro plan</div>
+  </aside>
+  <div class="sidebar-scrim"></div>
+
+  <main class="app-main">
+
+    <nav aria-label="Breadcrumb">
+      <ol class="breadcrumb">
+        <li><a href="demo-dashboard.html">ops</a></li>
+        <li><a href="#">workspace</a></li>
+        <li aria-current="page">settings</li>
+      </ol>
+    </nav>
+
+    <div class="row wrap between" style="margin:14px 0 24px">
+      <h1 style="margin:0;font-size:1.45rem">Workspace settings</h1>
+      <div class="row gap-sm">
+        <button class="btn btn-ghost">Discard</button>
+        <button class="btn btn-primary" onclick="pui.toast('12 settings saved', { type: 'ok', title: 'Saved' })">Save changes</button>
+      </div>
+    </div>
+
+    <div class="tabs" role="tablist" aria-label="Settings sections">
+      <button class="tab" role="tab" aria-selected="true" aria-controls="s-general">General</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="s-members" tabindex="-1">Members</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="s-security" tabindex="-1">Security</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="s-keys" tabindex="-1">API keys</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="s-danger" tabindex="-1">Danger zone</button>
+    </div>
+
+    <!-- GENERAL -->
+    <div id="s-general" role="tabpanel" class="stack" style="padding-top:20px; max-width:760px">
+      <div class="card">
+        <div class="card-header"><div><h2 class="card-title">Identity</h2><p class="card-sub">How your workspace appears across the cluster.</p></div></div>
+        <div class="grid cols-2">
+          <div class="field">
+            <label>Workspace name</label>
+            <input value="Szmelc Ops">
+            <span class="hint">Shown in the topbar and alert emails.</span>
+          </div>
+          <div class="field">
+            <label>Support email</label>
+            <input type="email" value="ops@szmelc.inc">
+          </div>
+          <div class="field">
+            <label>Default region</label>
+            <select><option>eu-central (Hannover)</option><option>us-east (Ashburn)</option><option>ap-south (Singapore)</option></select>
+          </div>
+          <div class="field">
+            <label>Timezone</label>
+            <select><option>CET / CEST (Berlin)</option><option>UTC</option><option>EST (New York)</option></select>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div><h2 class="card-title">Preferences</h2><p class="card-sub">Applies to your account only.</p></div></div>
+        <div class="stack">
+          <label class="row between"><div><strong class="small">Dark by default</strong><div class="tiny muted">Follows system when off</div></div><input type="checkbox" class="switch" checked></label>
+          <label class="row between"><div><strong class="small">Compact density</strong><div class="tiny muted">Tighter spacing for data-heavy views</div></div><input type="checkbox" class="switch"></label>
+          <label class="row between"><div><strong class="small">Email digests</strong><div class="tiny muted">Daily summary instead of live alerts</div></div><input type="checkbox" class="switch" checked></label>
+        </div>
+        <div class="card-footer">Changes save automatically · <button class="btn btn-sm btn-ghost" data-copy="#cfg-json" data-tip="Copy JSON">copy as JSON</button></div>
+      </div>
+    </div>
+
+    <!-- MEMBERS -->
+    <div id="s-members" role="tabpanel" hidden class="stack" style="padding-top:20px">
+      <div class="card">
+        <div class="card-header">
+          <div><h2 class="card-title">Members</h2><p class="card-sub">8 members · 2 pending invitations</p></div>
+          <button class="btn btn-primary btn-sm" data-open="dlg-invite">+ Invite</button>
+        </div>
+        <div class="table-wrap" style="border:0">
+          <table class="table">
+            <thead><tr><th style="width:34px"><input type="checkbox" aria-label="Select all"></th><th>Member</th><th>Role</th><th>2FA</th><th>Last active</th><th></th></tr></thead>
+            <tbody>
+              <tr>
+                <td><input type="checkbox" aria-label="Select szmelc"></td>
+                <td><div class="row gap-sm"><span class="avatar">SJ</span><div><strong>szmelc</strong><div class="tiny muted">szmelc@szmelc.inc</div></div></div></td>
+                <td><span class="badge badge-accent">owner</span></td>
+                <td><span class="ok">✓ enabled</span></td>
+                <td class="muted small">2 min ago</td>
+                <td><button class="btn btn-ghost btn-sm" data-tip="Manage">⋯</button></td>
+              </tr>
+              <tr>
+                <td><input type="checkbox" aria-label="Select kx"></td>
+                <td><div class="row gap-sm"><span class="avatar" style="background:var(--pui-ok-soft);color:var(--pui-ok)">KX</span><div><strong>kx</strong><div class="tiny muted">kx@szmelc.inc</div></div></div></td>
+                <td><span class="badge">admin</span></td>
+                <td><span class="ok">✓ enabled</span></td>
+                <td class="muted small">14 min ago</td>
+                <td><button class="btn btn-ghost btn-sm">⋯</button></td>
+              </tr>
+              <tr>
+                <td><input type="checkbox" aria-label="Select alina"></td>
+                <td><div class="row gap-sm"><span class="avatar" style="background:var(--pui-info-soft);color:var(--pui-info)">AL</span><div><strong>alina</strong><div class="tiny muted">alina@szmelc.inc</div></div></div></td>
+                <td><span class="badge">operator</span></td>
+                <td><span class="warn">✕ missing</span></td>
+                <td class="muted small">3 h ago</td>
+                <td><button class="btn btn-ghost btn-sm">⋯</button></td>
+              </tr>
+              <tr>
+                <td><input type="checkbox" aria-label="Select mzik"></td>
+                <td><div class="row gap-sm"><span class="avatar" style="background:var(--pui-warn-soft);color:var(--pui-warn)">MZ</span><div><strong>mzik</strong><div class="tiny muted">mzik@szmelc.inc</div></div></div></td>
+                <td><span class="badge">viewer</span></td>
+                <td><span class="ok">✓ enabled</span></td>
+                <td class="muted small">yesterday</td>
+                <td><button class="btn btn-ghost btn-sm">⋯</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card-footer row between">
+          <span class="small muted">Selected: <strong class="mono">0</strong></span>
+          <nav class="pagination" aria-label="Members pagination">
+            <button class="page-btn">‹</button>
+            <button class="page-btn" aria-current="page">1</button>
+            <button class="page-btn">›</button>
+          </nav>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECURITY -->
+    <div id="s-security" role="tabpanel" hidden class="stack" style="padding-top:20px; max-width:760px">
+      <div class="card">
+        <div class="card-header"><div><h2 class="card-title">Access policy</h2></div><span class="badge badge-ok"><span class="dot"></span>enforced</span></div>
+        <div class="stack">
+          <label class="row between"><div><strong class="small">Require 2FA for all members</strong></div><input type="checkbox" class="switch" checked></label>
+          <label class="row between"><div><strong class="small">SSO via SAML</strong><div class="tiny muted">Okta · verified</div></div><input type="checkbox" class="switch" checked></label>
+          <label class="row between"><div><strong class="small">IP allowlist</strong><div class="tiny muted">3 ranges configured</div></div><input type="checkbox" class="switch"></label>
+          <div class="field" style="margin-top:6px">
+            <label>Session duration</label>
+            <div class="input-group">
+              <input type="number" value="12" aria-label="Session hours">
+              <button class="btn">hours</button>
+            </div>
+            <span class="hint">Minimum 1h, maximum 72h.</span>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h2 class="card-title">Recent security events</h2></div>
+        <ul class="timeline">
+          <li class="ok"><div class="t-time">08:12</div><div class="t-body">SSO login — szmelc (Okta MFA)</div></li>
+          <li class="warn"><div class="t-time">07:02</div><div class="t-body">API key <code>ops-live-4</code> approaching rate limit</div></li>
+          <li class="info"><div class="t-time">yesterday</div><div class="t-body">New member invited: alina@szmelc.inc</div></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- KEYS -->
+    <div id="s-keys" role="tabpanel" hidden class="stack" style="padding-top:20px; max-width:760px">
+      <div class="card">
+        <div class="card-header">
+          <div><h2 class="card-title">API keys</h2><p class="card-sub">Keys inherit the workspace role of their creator.</p></div>
+          <button class="btn btn-soft btn-sm" onclick="pui.toast('Key ops-live-5 created — copy it now, it will not be shown again', { type: 'warn', title: 'API key created' })">Generate key</button>
+        </div>
+        <div class="stack">
+          <div class="row between wrap">
+            <div class="row gap-sm"><span class="badge badge-ok">live</span><code>ops-live-4</code><span class="tiny muted">created 2026-10-02</span></div>
+            <div class="row gap-sm"><button class="btn btn-sm btn-outline" data-copy="#k1" data-tip="Copy">copy</button><button class="btn btn-sm btn-ghost danger">revoke</button></div>
+          </div>
+          <div class="row between wrap">
+            <div class="row gap-sm"><span class="badge">test</span><code>ops-test-2</code><span class="tiny muted">created 2026-11-01</span></div>
+            <div class="row gap-sm"><button class="btn btn-sm btn-outline" data-copy="#k2" data-tip="Copy">copy</button><button class="btn btn-sm btn-ghost danger">revoke</button></div>
+          </div>
+          <span id="k1" class="visually-hidden">pui_live_sk_a91f2c…</span>
+          <span id="k2" class="visually-hidden">pui_test_sk_77b0dd…</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- DANGER -->
+    <div id="s-danger" role="tabpanel" hidden class="stack" style="padding-top:20px; max-width:760px">
+      <div class="alert alert-warn"><div><div class="alert-title">Careful here</div><p class="alert-body">These actions affect the whole workspace and may be irreversible.</p></div></div>
+      <div class="card" style="border-color: color-mix(in oklab, var(--pui-danger) 35%, var(--pui-line))">
+        <div class="card-header"><div><h2 class="card-title danger">Delete workspace</h2><p class="card-sub">Removes 14 nodes, 8 members and all history.</p></div></div>
+        <button class="btn btn-danger" data-open="dlg-delete">Delete workspace…</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<dialog id="dlg-invite">
+  <div class="dialog-header">
+    <h3 class="dialog-title">Invite member</h3>
+    <button class="btn btn-ghost btn-icon" data-close aria-label="Close">✕</button>
+  </div>
+  <div class="stack">
+    <div class="field"><label>Email</label><input type="email" placeholder="someone@szmelc.inc"></div>
+    <div class="field">
+      <label>Role</label>
+      <select><option>operator</option><option>admin</option><option>viewer</option></select>
+      <span class="hint">Owners can only be invited by transfer.</span>
+    </div>
+  </div>
+  <div class="dialog-footer">
+    <button class="btn btn-ghost" data-close>Cancel</button>
+    <button class="btn btn-primary" data-close onclick="pui.toast('Invitation sent', { type: 'ok' })">Send invite</button>
+  </div>
+</dialog>
+
+<dialog id="dlg-delete">
+  <div class="dialog-header">
+    <h3 class="dialog-title danger">Delete workspace?</h3>
+    <button class="btn btn-ghost btn-icon" data-close aria-label="Close">✕</button>
+  </div>
+  <p class="small muted" style="margin-top:0">This permanently deletes <strong>Szmelc Ops</strong> — 14 nodes, 8 members, all metrics history and audit logs. Type the workspace name to confirm.</p>
+  <div class="field" style="margin-top:14px">
+    <label>Workspace name</label>
+    <input placeholder="Szmelc Ops">
+  </div>
+  <div class="dialog-footer">
+    <button class="btn btn-ghost" data-close>Cancel</button>
+    <button class="btn btn-danger" data-close onclick="pui.toast('Workspace deletion scheduled (30-day grace)', { type: 'danger', title: 'Deleted' })">I understand, delete</button>
+  </div>
+</dialog>
+
+<dialog class="cmdk" id="cmdk" aria-label="Command palette">
+  <input class="cmdk-input" placeholder="Search settings…" aria-label="Search">
+  <div class="cmdk-list" role="listbox">
+    <div class="cmdk-item" data-href="#"><span>⚙</span> General settings</div>
+    <div class="cmdk-item" data-href="#"><span>👥</span> Members</div>
+    <div class="cmdk-item" data-href="#"><span>🔑</span> API keys</div>
+    <div class="cmdk-item" data-cmd="theme"><span>◐</span> Toggle theme</div>
+    <div class="cmdk-empty" hidden>No matching commands</div>
+  </div>
+  <div class="cmdk-footer"><span>↑↓ navigate</span><span>↵ run</span><span>esc close</span></div>
+</dialog>
+
+<script type="module" src="../src/pui.js"></script>
+<script>
+  window.puiActions = { theme: () => pui.theme() };
+</script>
+</body>
+</html>

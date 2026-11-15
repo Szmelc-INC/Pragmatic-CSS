@@ -1,0 +1,674 @@
+<!doctype html>
+<html lang="en" data-hue="violet">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pragmatic UI — the universal pragmatic WebUI design system</title>
+  <meta name="description" content="One dependency-free stylesheet: OKLCH design tokens, classless base, 30+ components, optional JS layer, Tailwind v4 bridge. Dark-first.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='4' y='4' width='24' height='24' rx='7' fill='%23a78bfa'/%3E%3C/svg%3E">
+  <script>
+    // restore theme before first paint (no FOUC); ?theme=&hue=&density= for shareable states
+    try {
+      const p = new URLSearchParams(location.search);
+      const t = p.get("theme") || localStorage.getItem("pui-theme");
+      if (t) document.documentElement.dataset.theme = t;
+      const h = p.get("hue"); if (h) document.documentElement.dataset.hue = h;
+      const d = p.get("density"); if (d) document.documentElement.dataset.density = d;
+    } catch {}
+  </script>
+  <link rel="stylesheet" href="../src/pui.css">
+  <style>
+    /* ---- docs page chrome (page-specific, sits outside the system) ---- */
+    .doc-layout { max-width: 1200px; margin-inline: auto; padding: 0 24px; }
+    .doc-grid { display: grid; grid-template-columns: minmax(0, 1fr) 210px; gap: 48px; }
+    .doc-toc { position: sticky; top: calc(var(--pui-topbar-h) + 24px); align-self: start;
+               font-size: 0.8rem; max-height: calc(100dvh - var(--pui-topbar-h) - 48px); overflow-y: auto; }
+    .doc-toc ol { list-style: none; margin: 0; padding: 0; }
+    .doc-toc a { display: block; padding: 4px 10px; color: var(--pui-muted); border-inline-start: 1px solid var(--pui-line);
+                 text-decoration: none; transition: color 120ms, border-color 120ms; }
+    .doc-toc a:hover { color: var(--pui-text); text-decoration: none; border-color: var(--pui-line-strong); }
+    .doc-toc .toc-h { font-size: 0.67rem; text-transform: uppercase; letter-spacing: 0.07em;
+                      color: var(--pui-faint); padding: 14px 10px 4px; }
+    @media (max-width: 1080px) { .doc-grid { grid-template-columns: minmax(0, 1fr); } .doc-toc { display: none; } }
+
+    .hero { padding: 72px 0 40px; }
+    .hero-title {
+      font-family: var(--pui-font-display);
+      font-size: clamp(2.6rem, 7vw, 4.6rem);
+      font-weight: 800;
+      letter-spacing: -0.035em;
+      line-height: 1.05;
+      margin: 0;
+    }
+    .hero-title .grad {
+      background: linear-gradient(90deg, var(--pui-accent), var(--pui-info), var(--pui-ok));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .hero-sub { font-size: 1.08rem; color: var(--pui-muted); max-width: 62ch; margin: 18px 0 0; }
+    .hero-eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 0.75rem; font-weight: 600;
+                    letter-spacing: 0.08em; text-transform: uppercase; color: var(--pui-accent-strong);
+                    padding: 5px 12px; border: 1px solid color-mix(in oklab, var(--pui-accent) 35%, transparent);
+                    background: var(--pui-accent-soft); border-radius: 999px; margin-bottom: 22px; }
+    section.doc-section { padding-block: 44px; }
+    section.doc-section > h2 { margin-top: 0; font-size: 1.4rem; scroll-margin-top: calc(var(--pui-topbar-h) + 16px); }
+    section.doc-section > .lede { color: var(--pui-muted); max-width: 68ch; margin-top: 0; }
+
+    .demo-box { border: 1px dashed var(--pui-line-strong); border-radius: var(--pui-r-l);
+                padding: var(--pui-pad-card); background: color-mix(in oklab, var(--pui-bg) 55%, transparent); }
+    .demo-label { font-family: var(--pui-font-mono); font-size: 0.68rem; color: var(--pui-faint);
+                  text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; }
+    .specimen + .specimen { margin-top: 22px; }
+
+    .swatch { display: flex; align-items: center; gap: 12px; padding: 9px 12px;
+              background: var(--pui-surface); border: 1px solid var(--pui-line);
+              border-radius: var(--pui-r-m); font-family: var(--pui-font-mono); font-size: 0.76rem; }
+    .swatch-chip { width: 34px; height: 34px; border-radius: var(--pui-r-s); border: 1px solid var(--pui-line-strong); flex-shrink: 0; }
+    .swatch b { display: block; font-family: var(--pui-font-sans); font-size: 0.82rem; }
+    .swatch span { color: var(--pui-muted); }
+
+    pre.sample { position: relative; font-size: 0.8rem; }
+    .sample .tag-name { color: var(--pui-info); }
+    .sample .attr { color: var(--pui-warn); }
+    .sample .str { color: var(--pui-ok); }
+    .sample .cmt { color: var(--pui-faint); }
+
+    footer.site { border-top: 1px solid var(--pui-line); margin-top: 40px; }
+  </style>
+</head>
+<body>
+
+<!-- ================= TOPBAR ================= -->
+<header class="topbar">
+  <button class="btn btn-ghost btn-icon" data-sidebar-toggle aria-label="Toggle navigation" style="display:none">☰</button>
+  <a class="topbar-brand" href="./index.html">Pragmatic&nbsp;UI</a>
+  <nav class="topbar-nav" aria-label="Docs">
+    <a href="#philosophy">Philosophy</a>
+    <a href="#install">Install</a>
+    <a href="#theming">Theming</a>
+    <a href="#tokens">Tokens</a>
+    <a href="#components">Components</a>
+    <a href="#agents">For AI agents</a>
+  </nav>
+  <div class="topbar-actions">
+    <button class="btn btn-ghost btn-icon" data-theme-toggle aria-label="Toggle theme" data-tip="Toggle theme"><span aria-hidden="true">◐</span></button>
+    <a class="btn btn-soft btn-sm" href="https://github.com/Szmelc-INC/Pragmatic-CSS" target="_blank" rel="noopener">GitHub ↗</a>
+  </div>
+</header>
+
+<div class="doc-layout">
+
+  <!-- ================= HERO ================= -->
+  <div class="hero">
+    <span class="hero-eyebrow"><span class="dot dot-pulse" style="color:var(--pui-ok)"></span> v2.0 — rebuilt for 2026</span>
+    <h1 class="hero-title">Pragmatic <span class="grad">UI</span></h1>
+    <p class="hero-sub">
+      The universal pragmatic WebUI design system. One dependency-free stylesheet that makes any
+      WebUI — admin panels, dashboards, tool UIs, AI chat frontends — instantly coherent, accessible
+      and dark-first. Bare HTML already looks right; opt-in components and a tiny JS layer take you
+      the rest of the way. Born from the Pragmatic-CSS snippets, reborn on modern CSS.
+    </p>
+    <div class="row wrap" style="margin-top:26px">
+      <a class="btn btn-primary" href="#install">Get started</a>
+      <a class="btn btn-outline" href="demo-dashboard.html">Live dashboard demo</a>
+      <a class="btn btn-outline" href="demo-admin.html">Admin demo</a>
+      <a class="btn btn-outline" href="demo-chat.html">Chat UI demo</a>
+    </div>
+
+    <div class="grid grid-auto" style="margin-top:36px">
+      <div class="card"><div class="metric-label">Stylesheet size</div><div class="metric-value">38.6<span class="small muted"> KB min</span></div><div class="metric-sub">zero dependencies</div></div>
+      <div class="card"><div class="metric-label">Components</div><div class="metric-value accent">30<span class="small muted">+</span></div><div class="metric-sub">plus full classless base</div></div>
+      <div class="card"><div class="metric-label">Themes</div><div class="metric-value ok">2 × 6</div><div class="metric-sub">light/dark × accent hues</div></div>
+      <div class="card"><div class="metric-label">JS layer</div><div class="metric-value warn">6.3<span class="small muted"> KB</span></div><div class="metric-sub">optional, everything works without it</div></div>
+    </div>
+  </div>
+
+  <div class="doc-grid">
+  <main>
+
+  <!-- ================= PHILOSOPHY ================= -->
+  <section class="doc-section" id="philosophy">
+    <h2>Philosophy</h2>
+    <p class="lede">Four rules carried over from the original Pragmatic-CSS snippets, now enforced by architecture instead of discipline.</p>
+    <div class="grid cols-2" style="margin-top:20px">
+      <div class="card">
+        <h3 style="margin-top:0">🎯 Universal by default</h3>
+        <p class="small muted" style="margin-top:0">Classless base styles bare HTML — drop the stylesheet on any WebUI and buttons, tables, forms, dialogs and code blocks are immediately consistent. No markup rewrite required.</p>
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0">🧱 Pragmatic interactivity</h3>
+        <p class="small muted" style="margin-top:0">HTML-first: <code>&lt;details&gt;</code> dropdowns, <code>&lt;dialog&gt;</code> modals, the popover API, CSS-only tabs and tooltips. The JS layer is an enhancement, never a dependency — so UI keeps working in restricted renderers.</p>
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0">🌗 One variable to retheme</h3>
+        <p class="small muted" style="margin-top:0">Every color is OKLCH derived from <code>--pui-hue</code>. Soft variants, hover states and focus rings are computed at runtime via <code>color-mix()</code> — change one number, the whole system retints coherently.</p>
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0">🤖 AI-generation-friendly</h3>
+        <p class="small muted" style="margin-top:0">This repo began life as prompts teaching AIs to render UI. <a href="#agents">SKILL.md</a> continues that: a spec any code-generating agent can follow to emit correct, accessible Pragmatic UI markup.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= INSTALL ================= -->
+  <section class="doc-section" id="install">
+    <h2>Install</h2>
+    <p class="lede">No build step, no CDN, no dependencies. Pick one of three lanes.</p>
+
+    <div class="specimen">
+      <div class="demo-label">1 · Drop-in (most universal)</div>
+      <pre class="sample"><code><span class="cmt">&lt;!-- classless base + components in one file --&gt;</span>
+<span class="tag-name">&lt;link</span> <span class="attr">rel</span>=<span class="str">"stylesheet"</span> <span class="attr">href</span>=<span class="str">"pui.min.css"</span><span class="tag-name">&gt;</span>
+<span class="cmt">&lt;!-- optional behavior layer (theme, tabs, toasts, ⌘K) --&gt;</span>
+<span class="tag-name">&lt;script</span> <span class="attr">type</span>=<span class="str">"module"</span> <span class="attr">src</span>=<span class="str">"pui.min.js"</span><span class="tag-name">&gt;&lt;/script&gt;</span></code></pre>
+    </div>
+
+    <div class="specimen">
+      <div class="demo-label">2 · npm</div>
+      <pre class="sample"><code>npm i pragmatic-ui</code></pre>
+      <pre class="sample"><code><span class="cmt">// vite / esbuild / any bundler</span>
+<span class="tag-name">import</span> <span class="str">"pragmatic-ui/pui.css"</span>;
+<span class="tag-name">import</span> <span class="str">"pragmatic-ui/pui.js"</span>;  <span class="cmt">// optional</span></code></pre>
+    </div>
+
+    <div class="specimen">
+      <div class="demo-label">3 · Tailwind v4</div>
+      <pre class="sample"><code><span class="cmt">/* main.css — import order matters */</span>
+<span class="attr">@import</span> <span class="str">"tailwindcss"</span>;
+<span class="attr">@import</span> <span class="str">"pragmatic-ui/tailwind/pui-theme.css"</span>;  <span class="cmt">/* tokens → utilities */</span>
+<span class="attr">@import</span> <span class="str">"pragmatic-ui/src/pui.css"</span>;              <span class="cmt">/* classless base + components */</span></code></pre>
+      <p class="small muted">Now <code>bg-surface</code>, <code>text-muted</code>, <code>border-line</code>, <code>text-accent</code> resolve against live pui tokens — theme switching and hue re-accenting keep working. Tailwind utilities always win over pui component classes (cascade layers), so the two systems compose instead of fighting.</p>
+    </div>
+  </section>
+
+  <!-- ================= THEMING ================= -->
+  <section class="doc-section" id="theming">
+    <h2>Theming playground</h2>
+    <p class="lede">This entire page is themed by tokens — flip the switches and watch every component retint live.</p>
+
+    <div class="demo-box" style="margin-top:20px">
+      <div class="row wrap gap-lg">
+        <div class="row gap-sm" role="group" aria-label="Theme">
+          <button class="btn btn-sm" data-theme-toggle>◐ Toggle light / dark</button>
+        </div>
+        <span class="divider-v"></span>
+        <div class="row gap-sm" role="group" aria-label="Accent hue">
+          <span class="small muted">hue:</span>
+          <button class="btn btn-sm" onclick="document.documentElement.dataset.hue='blue'">blue</button>
+          <button class="btn btn-sm" onclick="document.documentElement.dataset.hue='cyan'">cyan</button>
+          <button class="btn btn-sm" onclick="document.documentElement.dataset.hue='violet'">violet</button>
+          <button class="btn btn-sm" onclick="document.documentElement.dataset.hue='green'">green</button>
+          <button class="btn btn-sm" onclick="document.documentElement.dataset.hue='amber'">amber</button>
+          <button class="btn btn-sm" onclick="document.documentElement.dataset.hue='red'">red</button>
+        </div>
+        <span class="divider-v"></span>
+        <div class="row gap-sm" role="group" aria-label="Density">
+          <span class="small muted">density:</span>
+          <button class="btn btn-sm" onclick="document.documentElement.dataset.density='compact'">compact</button>
+          <button class="btn btn-sm" onclick="document.documentElement.dataset.density='cozy'">cozy</button>
+          <button class="btn btn-sm" onclick="document.documentElement.dataset.density='comfort'">comfort</button>
+        </div>
+      </div>
+
+      <div class="grid cols-2" style="margin-top:18px">
+        <div class="row">
+          <button class="btn btn-primary">Primary</button>
+          <button class="btn">Default</button>
+          <button class="btn btn-soft">Soft</button>
+          <button class="btn btn-ghost">Ghost</button>
+          <button class="btn btn-danger">Danger</button>
+        </div>
+        <div class="row">
+          <span class="badge badge-ok"><span class="dot dot-pulse"></span>healthy</span>
+          <span class="badge badge-warn">degraded</span>
+          <span class="badge badge-danger">critical</span>
+          <div class="progress" style="flex:1"><div class="progress-fill" style="width:64%"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="specimen" style="margin-top:18px">
+      <div class="demo-label">Custom theme = override tokens</div>
+      <pre class="sample"><code><span class="cmt">/* a full custom theme is ~6 lines */</span>
+<span class="tag-name">:root</span> {
+  <span class="attr">--pui-hue</span>: <span class="str">190</span>;        <span class="cmt">/* accent hue in OKLCH degrees */</span>
+  <span class="attr">--pui-chroma</span>: <span class="str">0.11</span>;     <span class="cmt">/* accent saturation */</span>
+  <span class="attr">--pui-r-l</span>: <span class="str">8px</span>;         <span class="cmt">/* sharper cards */</span>
+  <span class="attr">--pui-font-sans</span>: <span class="str">"Inter", system-ui, sans-serif</span>;
+}</code></pre>
+    </div>
+  </section>
+
+  <!-- ================= TOKENS ================= -->
+  <section class="doc-section" id="tokens">
+    <h2>Tokens</h2>
+    <p class="lede">Semantic, layer-agnostic, runtime-computed. Reference them directly in any CSS.</p>
+
+    <div class="grid cols-3" style="margin-top:20px" id="token-swatches">
+      <!-- filled by script below -->
+    </div>
+
+    <div class="specimen" style="margin-top:20px">
+      <div class="demo-label">Core surface &amp; text scale (dark)</div>
+      <pre class="sample"><code>--pui-bg / --pui-surface / --pui-raised / --pui-hover / --pui-field
+--pui-line / --pui-line-strong
+--pui-text / --pui-muted / --pui-faint
+--pui-accent (+ -strong -hover -soft -softer) / --pui-on-accent
+--pui-ok / --pui-warn / --pui-danger / --pui-info (+ -soft)
+--pui-r-s m l xl pill · --pui-dur / --pui-ease · --pui-shadow-1 / -2</code></pre>
+    </div>
+  </section>
+
+  <!-- ================= COMPONENTS ================= -->
+  <section class="doc-section" id="components">
+    <h2>Components</h2>
+    <p class="lede">Everything below is live — click, hover, tab through it. The code samples are the actual markup.</p>
+
+    <!-- buttons -->
+    <div class="specimen" style="margin-top:26px">
+      <h3>Buttons</h3>
+      <div class="demo-box">
+        <div class="row wrap gap-sm">
+          <button class="btn btn-primary">Deploy</button>
+          <button class="btn">Restart</button>
+          <button class="btn btn-soft">Logs</button>
+          <button class="btn btn-ghost">Dismiss</button>
+          <button class="btn btn-outline">Configure</button>
+          <button class="btn btn-danger">Destroy</button>
+          <button class="btn" disabled>Disabled</button>
+          <button class="btn btn-primary" aria-busy="true">Busy</button>
+          <button class="btn btn-icon" data-tip="Icon button">⚙</button>
+        </div>
+        <div class="row wrap gap-sm" style="margin-top:12px">
+          <button class="btn btn-sm btn-soft">Small</button>
+          <button class="btn">Medium</button>
+          <button class="btn btn-lg btn-primary">Large</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- badges -->
+    <div class="specimen">
+      <h3>Badges &amp; status dots</h3>
+      <div class="demo-box">
+        <div class="row wrap gap-sm">
+          <span class="badge">default</span>
+          <span class="badge badge-accent">accent</span>
+          <span class="badge badge-ok"><span class="dot"></span>operational</span>
+          <span class="badge badge-warn"><span class="dot"></span>high latency</span>
+          <span class="badge badge-danger"><span class="dot dot-pulse"></span>critical</span>
+          <span class="badge badge-info">beta</span>
+          <span class="badge badge-solid">v4.2.1</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- alerts -->
+    <div class="specimen">
+      <h3>Alerts</h3>
+      <div class="stack" style="max-width:640px">
+        <div class="alert"><div><div class="alert-title">Information</div><p class="alert-body">A new version is available: v4.2.2. Check the changelog for details.</p></div></div>
+        <div class="alert alert-ok"><div><div class="alert-title">All systems operational</div><p class="alert-body">Last health check passed 2 minutes ago across 14 services.</p></div></div>
+        <div class="alert alert-warn"><div><div class="alert-title">Memory approaching limit</div><p class="alert-body">node-hannover-03 is at 78% — threshold is 75%. Monitoring.</p></div></div>
+        <div class="alert alert-danger">
+          <div class="grow"><div class="alert-title">Backup service delayed</div><p class="alert-body">Last successful backup: 48h ago. Investigating root cause.</p></div>
+          <button class="alert-dismiss" aria-label="Dismiss" onclick="this.closest('.alert').hidden=true">✕</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- metrics -->
+    <div class="specimen">
+      <h3>Metric cards</h3>
+      <div class="grid grid-auto">
+        <div class="card card-hover">
+          <div class="between"><span class="metric-label">CPU load</span><span class="badge badge-ok">ok</span></div>
+          <div class="metric-value accent">42%</div>
+          <div class="row between" style="margin-top:10px"><div class="progress sm grow"><div class="progress-fill" style="width:42%"></div></div><span class="metric-sub">8 vCPU</span></div>
+        </div>
+        <div class="card card-hover">
+          <div class="between"><span class="metric-label">Memory</span><span class="badge badge-warn">78%</span></div>
+          <div class="metric-value warn">25.0<span class="small muted">/32 GB</span></div>
+          <div class="row between" style="margin-top:10px"><div class="progress sm warn grow"><div class="progress-fill" style="width:78%"></div></div><span class="metric-sub">ECC DDR4</span></div>
+        </div>
+        <div class="card card-hover">
+          <div class="between"><span class="metric-label">Success rate</span><span class="delta up">+0.3%</span></div>
+          <div class="metric-value ok">99.7%</div>
+          <div class="metric-sub" style="margin-top:10px">last 24h · 184k requests</div>
+        </div>
+        <div class="card card-hover">
+          <div class="between"><span class="metric-label">Error rate</span><span class="delta down">0.1pp</span></div>
+          <div class="metric-value">0.42%</div>
+          <div class="metric-sub" style="margin-top:10px">p95 latency 58 ms</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- timeline -->
+    <div class="specimen">
+      <h3>Timeline</h3>
+      <div class="grid cols-2">
+        <div class="card">
+          <div class="card-header"><h4 class="card-title">Incident timeline</h4><span class="badge badge-ok">resolved</span></div>
+          <ul class="timeline">
+            <li><div class="t-time">08:14</div><div class="t-body">Alert triggered — memory threshold crossed on node-04.</div></li>
+            <li class="info"><div class="t-time">08:16</div><div class="t-body">On-call acknowledged, investigation started.</div></li>
+            <li class="warn"><div class="t-time">08:31</div><div class="t-body">Leaky worker pool identified; traffic shifted to node-07.</div></li>
+            <li class="ok"><div class="t-time">08:44</div><div class="t-body">Patch deployed, memory plateaued at 41%.</div></li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-header"><h4 class="card-title">Log stream</h4><span class="badge"><span class="dot dot-pulse" style="color:var(--pui-accent)"></span>live</span></div>
+          <div class="log" style="max-height:220px">
+            <div class="log-line"><span class="log-time">08:44:02</span><span><span class="lvl-ok">OK</span>&nbsp;&nbsp; deploy finished in 21.4s — rev 4f2a91c</span></div>
+            <div class="log-line"><span class="log-time">08:44:01</span><span><span class="lvl-info">INF</span>&nbsp;&nbsp; 14 services restarted, 0 failed</span></div>
+            <div class="log-line"><span class="log-time">08:43:57</span><span><span class="lvl-warn">WRN</span>&nbsp;&nbsp; cache hit ratio dipped to 91.2%</span></div>
+            <div class="log-line"><span class="log-time">08:43:12</span><span><span class="lvl-err">ERR</span>&nbsp;&nbsp; worker pool leak detected on node-04</span></div>
+            <div class="log-line"><span class="log-time">08:42:48</span><span><span class="lvl-info">INF</span>&nbsp;&nbsp; memory usage 78% — above threshold 75%</span></div>
+            <div class="log-line"><span class="log-time">08:41:30</span><span><span class="lvl-ok">OK</span>&nbsp;&nbsp; heartbeat — all nodes healthy</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- forms -->
+    <div class="specimen">
+      <h3>Forms</h3>
+      <div class="grid cols-2">
+        <div class="card">
+          <div class="stack">
+            <div class="field">
+              <label>Node hostname</label>
+              <input value="node-hannover-03">
+              <span class="hint">Shown in the ops dashboard and alerts.</span>
+            </div>
+            <div class="field">
+              <label>Region</label>
+              <select><option>eu-central (Hannover)</option><option>us-east (Ashburn)</option><option>ap-south (Singapore)</option></select>
+            </div>
+            <div class="field">
+              <label data-optional>Access token</label>
+              <input type="password" placeholder="pui_live_••••••••••••">
+            </div>
+            <div class="field">
+              <label>Webhook URL</label>
+              <input value="https://ops.example.com/hook" class="input-error">
+              <span class="hint hint-error">✕ URL must use HTTPS with a valid host.</span>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="stack">
+            <label class="row between"><span class="small">Auto-scaling</span><input type="checkbox" class="switch" checked></label>
+            <label class="row between"><span class="small">Maintenance window notifications</span><input type="checkbox" class="switch"></label>
+            <label class="row between"><span class="small">Strict TLS verification</span><input type="checkbox" class="switch" checked></label>
+            <hr style="margin:4px 0">
+            <label class="row"><input type="checkbox" checked><span class="small">Email alerts</span></label>
+            <label class="row"><input type="checkbox"><span class="small">PagerDuty escalation</span></label>
+            <label class="row"><input type="radio" name="r1" checked><span class="small">Notify on warn + critical</span></label>
+            <label class="row"><input type="radio" name="r1"><span class="small">Critical only</span></label>
+            <hr style="margin:4px 0">
+            <div class="field"><label>Alert sensitivity <span class="muted mono">72</span></label><input type="range" value="72"></div>
+            <div class="input-group">
+              <input placeholder="0.0.0.0/0" aria-label="CIDR">
+              <button class="btn">Add</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- table -->
+    <div class="specimen">
+      <h3>Tables</h3>
+      <div class="table-wrap">
+        <table class="table">
+          <thead><tr><th>Service</th><th>Region</th><th class="num">RPS</th><th class="num">p95</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+            <tr><td><strong>api-gateway</strong></td><td class="muted">eu-central</td><td class="num">12.4k</td><td class="num">28 ms</td><td><span class="badge badge-ok"><span class="dot"></span>healthy</span></td><td><button class="btn btn-ghost btn-sm">⋯</button></td></tr>
+            <tr><td><strong>auth-service</strong></td><td class="muted">eu-central</td><td class="num">3.1k</td><td class="num">41 ms</td><td><span class="badge badge-ok"><span class="dot"></span>healthy</span></td><td><button class="btn btn-ghost btn-sm">⋯</button></td></tr>
+            <tr><td><strong>redis-cache</strong></td><td class="muted">eu-central</td><td class="num">45.9k</td><td class="num">2 ms</td><td><span class="badge badge-warn"><span class="dot"></span>latency</span></td><td><button class="btn btn-ghost btn-sm">⋯</button></td></tr>
+            <tr><td><strong>backup-queue</strong></td><td class="muted">us-east</td><td class="num">0.2k</td><td class="num">—</td><td><span class="badge badge-danger"><span class="dot dot-pulse"></span>delayed</span></td><td><button class="btn btn-ghost btn-sm">⋯</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- tabs + tags + kv -->
+    <div class="specimen">
+      <h3>Tabs, tags &amp; key/value</h3>
+      <div class="grid cols-2">
+        <div class="card">
+          <div class="tabs" role="tablist" aria-label="Node details">
+            <button class="tab" role="tab" aria-selected="true" aria-controls="tp-1">Overview</button>
+            <button class="tab" role="tab" aria-selected="false" aria-controls="tp-2" tabindex="-1">Resources</button>
+            <button class="tab" role="tab" aria-selected="false" aria-controls="tp-3" tabindex="-1">Raw</button>
+          </div>
+          <div id="tp-1" role="tabpanel" style="padding-top:14px">
+            <div class="kv">
+              <span class="kv-key">Hostname</span><span class="kv-pill">node-hannover-03</span>
+              <span class="kv-key">IP</span><span class="kv-pill">172.16.42.117</span>
+              <span class="kv-key">Location</span><span class="muted">Hannover, DE</span>
+              <span class="kv-key">Kernel</span><span class="kv-val">6.8.0-31-generic</span>
+            </div>
+          </div>
+          <div id="tp-2" role="tabpanel" hidden style="padding-top:14px">
+            <div class="kv">
+              <span class="kv-key">CPU</span><span class="kv-val">AMD EPYC 7763 64-Core</span>
+              <span class="kv-key">RAM</span><span class="kv-val">128 GB DDR4 ECC</span>
+              <span class="kv-key">Storage</span><span class="kv-val">2× 1.92 TB NVMe</span>
+            </div>
+          </div>
+          <div id="tp-3" role="tabpanel" hidden style="padding-top:14px">
+            <div class="log">uptime: 19d 11h 32m<br>load: 0.42 / 0.38 / 0.31<br>docker: v27.3.1 (running)</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="stack">
+            <div class="row wrap gap-sm">
+              <button class="tag tag-active">frontend</button>
+              <button class="tag">api</button>
+              <button class="tag">database</button>
+              <button class="tag">monitoring</button>
+              <button class="tag">ci/cd</button>
+            </div>
+            <div class="tag-row-scroll">
+              <div class="row gap-sm">
+                <span class="tag">auth-service</span><span class="tag">queue</span><span class="tag">cdn</span>
+                <span class="tag">rate-limiter</span><span class="tag">webhooks</span><span class="tag">billing</span><span class="tag">search</span>
+              </div>
+            </div>
+            <div class="stat-line"><span class="stat-key">Uptime</span><strong class="ok">19d 12h</strong></div>
+            <div class="stat-line"><span class="stat-key">Load average</span><strong class="mono">0.42 / 0.38 / 0.31</strong></div>
+            <div class="stat-line"><span class="stat-key">Version</span><strong>v4.2.1</strong></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- overlays -->
+    <div class="specimen">
+      <h3>Dialogs, menus, tooltips, toasts, ⌘K</h3>
+      <div class="demo-box">
+        <div class="row wrap gap-sm">
+          <button class="btn" data-open="dlg-demo">Open dialog</button>
+          <details class="dropdown">
+            <summary><button class="btn" type="button" tabindex="-1">Dropdown ▾</button></summary>
+            <div class="dropdown-panel menu">
+              <div class="menu-label">Actions</div>
+              <button class="menu-item">🔄 Restart service</button>
+              <button class="menu-item">📋 Copy endpoint</button>
+              <div class="menu-sep"></div>
+              <button class="menu-item danger">🗑 Destroy</button>
+            </div>
+          </details>
+          <button class="btn btn-outline" data-tip="CSS-only tooltip, delays 250ms">Hover me</button>
+          <button class="btn btn-soft" data-tip-pos="bottom" data-tip="I open upwards too">Bottom tip</button>
+          <button class="btn btn-primary" onclick="pui.toast('Deployment finished in 21.4s', { title: 'rev 4f2a91c', type: 'ok' })">Toast (ok)</button>
+          <button class="btn" onclick="pui.toast('Memory at 78% on node-04', { title: 'Threshold exceeded', type: 'warn' })">Toast (warn)</button>
+          <button class="btn" data-cmdk="cmdk-demo">Command palette ⌘K</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- feedback / misc -->
+    <div class="specimen">
+      <h3>Feedback &amp; misc</h3>
+      <div class="grid cols-3">
+        <div class="card">
+          <div class="demo-label">avatars</div>
+          <div class="row">
+            <span class="avatar">SJ</span>
+            <span class="avatar avatar-lg" style="background:var(--pui-ok-soft);color:var(--pui-ok)">KX</span>
+            <span class="avatar-group">
+              <span class="avatar" style="background:var(--pui-info-soft);color:var(--pui-info)">AL</span>
+              <span class="avatar" style="background:var(--pui-warn-soft);color:var(--pui-warn)">MZ</span>
+              <span class="avatar">+6</span>
+            </span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="demo-label">pagination · breadcrumb</div>
+          <nav class="pagination" aria-label="Demo pagination">
+            <button class="page-btn">‹</button>
+            <button class="page-btn" aria-current="page">2</button>
+            <button class="page-btn">3</button>
+            <button class="page-btn">›</button>
+          </nav>
+          <ol class="breadcrumb" style="margin-top:12px">
+            <li><a href="#">ops</a></li><li><a href="#">nodes</a></li><li aria-current="page">hannover-03</li>
+          </ol>
+        </div>
+        <div class="card">
+          <div class="demo-label">skeleton · spinner · stepper</div>
+          <div class="row"><span class="spinner"></span><span class="small muted">Loading…</span></div>
+          <div class="stack-sm" style="margin-top:10px"><div class="skeleton" style="height:12px;width:80%"></div><div class="skeleton" style="height:12px;width:55%"></div></div>
+          <ol class="stepper" style="margin-top:14px">
+            <li data-done><span class="step-dot">✓</span>Credentials</li>
+            <li aria-current="step"><span class="step-dot">2</span>Network</li>
+            <li><span class="step-dot">3</span>Review</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+
+    <!-- accordions (bare details) -->
+    <div class="specimen">
+      <h3>Accordions — zero classes needed</h3>
+      <div class="demo-box" style="max-width:640px">
+        <details>
+          <summary><strong>› Raw configuration dump</strong> <span class="muted small">— a bare &lt;details&gt; element</span></summary>
+          <div class="log" style="margin-top:10px">bind = 0.0.0.0:8443<br>workers = 16<br>tls_verify = strict<br>log_level = info</div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= AGENTS ================= -->
+  <section class="doc-section" id="agents">
+    <h2>For AI agents — SKILL.md</h2>
+    <p class="lede">This repo's origin story: teaching assistants to render pragmatic UI. The rewritten <a href="https://github.com/Szmelc-INC/Pragmatic-CSS/blob/main/SKILL.md" target="_blank" rel="noopener"><strong>SKILL.md</strong></a> is a modern agent skill — feed it to any code-generating assistant and it will produce correct, accessible Pragmatic UI markup: the component vocabulary, token rules, a11y requirements, and a degraded "restricted renderer" mode for chat surfaces that allow only inline styles.</p>
+    <div class="grid cols-3">
+      <div class="card"><h4 style="margin-top:0">🧭 Decision framework</h4><p class="small muted">Header → metrics → status → timeline → progressive disclosure → footer. The original flow, now for whole WebUIs.</p></div>
+      <div class="card"><h4 style="margin-top:0">🚫 Hard constraints</h4><p class="small muted">No JS in chat renderers, no external assets, restraint on glow — the pragmatic rules survive as explicit don'ts.</p></div>
+      <div class="card"><h4 style="margin-top:0">📦 Copy-paste recipes</h4><p class="small muted">Ready-made snippets for every component, matching the classes in pui.css 1:1.</p></div>
+    </div>
+  </section>
+
+  </main>
+
+  <!-- ================= TOC ================= -->
+  <aside class="doc-toc" aria-label="Table of contents">
+    <div class="toc-h">on this page</div>
+    <ol>
+      <li><a href="#philosophy">Philosophy</a></li>
+      <li><a href="#install">Install</a></li>
+      <li><a href="#theming">Theming</a></li>
+      <li><a href="#tokens">Tokens</a></li>
+      <li><a href="#components">Components</a></li>
+      <li><a href="#agents">For AI agents</a></li>
+    </ol>
+    <div class="toc-h">demos</div>
+    <ol>
+      <li><a href="demo-dashboard.html">Dashboard</a></li>
+      <li><a href="demo-admin.html">Admin panel</a></li>
+      <li><a href="demo-chat.html">Chat UI</a></li>
+    </ol>
+  </aside>
+  </div>
+</div>
+
+<!-- ================= FOOTER (heritage status bar) ================= -->
+<footer class="site">
+  <div class="doc-layout row wrap between" style="padding:20px 24px; font-size:0.8rem; color:var(--pui-muted)">
+    <div class="row gap-sm">
+      <span class="dot" style="color:var(--pui-ok)"></span>
+      <span>status: <strong class="ok">operational</strong></span>
+      <span class="divider-v"></span>
+      <span>© 2026 Szmelc.INC</span>
+    </div>
+    <div class="row gap-sm mono tiny faint">pragmatic-ui v2.0.0 · 0 dependencies · MIT</div>
+  </div>
+</footer>
+
+<!-- ================= DIALOG ================= -->
+<dialog id="dlg-demo">
+  <div class="dialog-header">
+    <h3 class="dialog-title">Restart service</h3>
+    <button class="btn btn-ghost btn-icon" data-close aria-label="Close">✕</button>
+  </div>
+  <p class="small muted" style="margin-top:0">Restarting <code>api-gateway</code> will drop in-flight connections for ~2 seconds. Sessions are preserved.</p>
+  <div class="kv" style="margin-block:14px">
+    <span class="kv-key">Service</span><span class="kv-pill">api-gateway</span>
+    <span class="kv-key">Region</span><span class="kv-val">eu-central</span>
+    <span class="kv-key">Impact</span><span class="warn">brief downtime</span>
+  </div>
+  <div class="dialog-footer">
+    <button class="btn btn-ghost" data-close>Cancel</button>
+    <button class="btn btn-primary" data-close onclick="pui.toast('api-gateway restarted', { type: 'ok', title: 'Done' })">Restart now</button>
+  </div>
+</dialog>
+
+<!-- ================= COMMAND PALETTE ================= -->
+<dialog class="cmdk" id="cmdk-demo" aria-label="Command palette">
+  <input class="cmdk-input" placeholder="Type a command or search…" aria-label="Command search">
+  <div class="cmdk-list" role="listbox">
+    <div class="cmdk-item" data-cmd="restart"><span>🔄</span> Restart all services <kbd class="cmdk-hint-kbd">⌘R</kbd></div>
+    <div class="cmdk-item" data-cmd="clear-cache"><span>🧹</span> Clear cache</div>
+    <div class="cmdk-item" data-cmd="diag"><span>🩺</span> Run health check</div>
+    <div class="cmdk-item" data-cmd="theme"><span>◐</span> Toggle theme</div>
+    <div class="cmdk-item" data-href="demo-dashboard.html"><span>📊</span> Go to dashboard demo</div>
+    <div class="cmdk-item" data-href="demo-admin.html"><span>⚙</span> Go to admin demo</div>
+    <div class="cmdk-empty" hidden>No matching commands</div>
+  </div>
+  <div class="cmdk-footer"><span>↑↓ navigate</span><span>↵ run</span><span>esc close</span></div>
+</dialog>
+
+<script type="module" src="../src/pui.js"></script>
+<script>
+  // register real actions for the demo palette
+  window.puiActions = {
+    theme: () => pui.theme(),
+    restart: () => pui.toast("All services restarted", { type: "ok", title: "Done" }),
+    "clear-cache": () => pui.toast("Redis & OPCache flushed", { type: "info", title: "Cache cleared" }),
+    diag: () => pui.toast("14 services checked — all healthy", { type: "ok", title: "Health check" }),
+  };
+
+  // token swatches
+  const SW = [
+    ["--pui-bg", "canvas"], ["--pui-surface", "card"], ["--pui-raised", "raised"],
+    ["--pui-line", "border"], ["--pui-text", "text"], ["--pui-muted", "muted"],
+    ["--pui-accent", "accent"], ["--pui-ok", "ok"], ["--pui-warn", "warn"],
+    ["--pui-danger", "danger"], ["--pui-info", "info"], ["--pui-accent-soft", "accent soft"],
+  ];
+  const wrap = document.getElementById("token-swatches");
+  for (const [name, label] of SW) {
+    const d = document.createElement("div");
+    d.className = "swatch";
+    d.innerHTML = `<span class="swatch-chip" style="background:var(${name})"></span><span><b>${label}</b><span>${name}</span></span>`;
+    wrap.appendChild(d);
+  }
+</script>
+</body>
+</html>

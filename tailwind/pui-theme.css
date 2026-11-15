@@ -1,0 +1,76 @@
+/* ==========================================================================
+   Pragmatic UI — Tailwind v4 bridge
+   --------------------------------------------------------------------------
+   Maps every pui design token into Tailwind's theme so utilities like
+   `bg-surface`, `text-muted`, `border-line`, `text-accent` resolve against
+   the LIVE pui tokens — light/dark switching, `[data-hue]` re-accenting and
+   `[data-density]` all keep working, because the values are var() chains,
+   not baked hex codes.
+
+   Main.css import order:
+     @import "tailwindcss";
+     @import "pragmatic-ui/tailwind/pui-theme.css";
+     @import "pragmatic-ui/src/pui.css";   ← optional: classless base + components
+
+   With Tailwind v3, skip this file and copy the token values from
+   src/pui.css into your tailwind.config.js theme.extend.
+   ========================================================================== */
+
+/* `dark:` utilities follow the pui theme attribute, not just the media query */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@theme inline {
+  /* --- surfaces ------------------------------------------------------------ */
+  --color-canvas: var(--pui-bg);
+  --color-surface: var(--pui-surface);
+  --color-raised: var(--pui-raised);
+  --color-hover: var(--pui-hover);
+  --color-field: var(--pui-field);
+
+  /* --- lines ---------------------------------------------------------------- */
+  --color-line: var(--pui-line);
+  --color-line-strong: var(--pui-line-strong);
+
+  /* --- text ------------------------------------------------------------------ */
+  --color-fg: var(--pui-text);
+  --color-muted: var(--pui-muted);
+  --color-faint: var(--pui-faint);
+
+  /* --- accent ------------------------------------------------------------------ */
+  --color-accent: var(--pui-accent);
+  --color-accent-strong: var(--pui-accent-strong);
+  --color-accent-soft: var(--pui-accent-soft);
+  --color-on-accent: var(--pui-on-accent);
+
+  /* --- status --------------------------------------------------------------------- */
+  --color-ok: var(--pui-ok);
+  --color-ok-soft: var(--pui-ok-soft);
+  --color-warn: var(--pui-warn);
+  --color-warn-soft: var(--pui-warn-soft);
+  --color-danger: var(--pui-danger);
+  --color-danger-soft: var(--pui-danger-soft);
+  --color-info: var(--pui-info);
+  --color-info-soft: var(--pui-info-soft);
+
+  /* --- inverted pair ----------------------------------------------------------------- */
+  --color-inverse: var(--pui-inverse-bg);
+  --color-inverse-fg: var(--pui-inverse-fg);
+
+  /* --- radius scale --------------------------------------------------------------------- */
+  --radius-sm: var(--pui-r-s);
+  --radius-md: var(--pui-r-m);
+  --radius-lg: var(--pui-r-l);
+  --radius-xl: var(--pui-r-xl);
+  --radius-pill: var(--pui-r-pill);
+
+  /* --- type -------------------------------------------------------------------------------- */
+  --font-sans: var(--pui-font-sans);
+  --font-mono: var(--pui-font-mono);
+
+  /* --- elevation ------------------------------------------------------------------------------ */
+  --shadow-e1: var(--pui-shadow-1);
+  --shadow-e2: var(--pui-shadow-2);
+
+  /* --- motion ------------------------------------------------------------------------------------- */
+  --ease-pragmatic: var(--pui-ease);
+}

@@ -1,0 +1,50 @@
+{
+  "name": "pragmatic-ui",
+  "version": "2.0.0",
+  "description": "The universal pragmatic WebUI design system — one dependency-free stylesheet: OKLCH design tokens, classless base, ~30 components, optional tiny JS layer, Tailwind v4 bridge. Dark-first, AI-generation-friendly.",
+  "keywords": [
+    "css",
+    "design-system",
+    "webui",
+    "dashboard",
+    "classless",
+    "tailwind",
+    "design-tokens",
+    "oklch",
+    "dark-theme",
+    "ui-components"
+  ],
+  "license": "MIT",
+  "author": "Szmelc.INC",
+  "homepage": "https://github.com/Szmelc-INC/Pragmatic-CSS#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Szmelc-INC/Pragmatic-CSS.git"
+  },
+  "type": "module",
+  "exports": {
+    ".": "./src/pui.js",
+    "./pui.css": "./src/pui.css",
+    "./pui.js": "./src/pui.js",
+    "./pui.min.css": "./dist/pui.min.css",
+    "./pui.min.js": "./dist/pui.min.js",
+    "./pui.iife.js": "./dist/pui.iife.js",
+    "./tailwind": "./tailwind/pui-theme.css",
+    "./tailwind.css": "./tailwind/pui-theme.css"
+  },
+  "files": [
+    "src",
+    "dist",
+    "tailwind",
+    "SKILL.md",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "node build.mjs",
+    "serve": "python3 -m http.server 8123 --directory docs"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2"
+  }
+}

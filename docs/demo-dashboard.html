@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en" data-hue="violet">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ops Center — Pragmatic UI demo</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='4' y='4' width='24' height='24' rx='7' fill='%23a78bfa'/%3E%3C/svg%3E">
+  <script>
+  try {
+    const p = new URLSearchParams(location.search);
+    const t = p.get("theme") || localStorage.getItem("pui-theme");
+    if (t) document.documentElement.dataset.theme = t;
+    const h = p.get("hue"); if (h) document.documentElement.dataset.hue = h;
+    const d = p.get("density"); if (d) document.documentElement.dataset.density = d;
+  } catch {}
+</script>
+  <link rel="stylesheet" href="../src/pui.css">
+  <style>
+    .page-head { margin-bottom: 26px; }
+    .ring-wrap { display: grid; place-items: center; gap: 6px; }
+    .ring-val { position: absolute; display: grid; place-items: center; inset: 0; font-weight: 700; font-size: 1.15rem; }
+    @media (max-width: 1000px) {
+      #main-grid { grid-template-columns: minmax(0, 1fr) !important; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- ============ TOPBAR ============ -->
+  <header class="topbar">
+    <button class="btn btn-ghost btn-icon" data-sidebar-toggle aria-label="Toggle sidebar">☰</button>
+    <a class="topbar-brand" href="demo-dashboard.html">OpsCenter</a>
+    <span class="badge badge-ok"><span class="dot dot-pulse"></span>all systems nominal</span>
+    <div class="topbar-actions">
+      <button class="btn btn-icon btn-ghost" data-tip="Search (⌘K)" data-cmdk="cmdk" aria-label="Search">🔍</button>
+      <button class="btn btn-icon btn-ghost" data-theme-toggle aria-label="Toggle theme">◐</button>
+      <details class="dropdown" id="user-dd">
+        <summary><span class="avatar" role="button" aria-label="Account menu">SJ</span></summary>
+        <div class="dropdown-panel menu" end>
+          <div class="menu-item" aria-current="true">👤 szmelc@hannover</div>
+          <div class="menu-sep"></div>
+          <button class="menu-item">⚙ Preferences</button>
+          <button class="menu-item danger">⏻ Sign out</button>
+        </div>
+      </details>
+    </div>
+  </header>
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar">
+    <nav>
+      <ul class="sidebar-nav">
+        <li class="sidebar-label">Monitoring</li>
+        <li><a class="sidebar-item" href="#" aria-current="page">📊 Overview</a></li>
+        <li><a class="sidebar-item" href="#">🖥 Nodes <span class="badge badge-ok">14</span></a></li>
+        <li><a class="sidebar-item" href="#">📈 Metrics</a></li>
+        <li><a class="sidebar-item" href="#">🚨 Alerts <span class="badge badge-warn">3</span></a></li>
+        <li class="sidebar-label">Operations</li>
+        <li><a class="sidebar-item" href="#">🔄 Deployments</a></li>
+        <li><a class="sidebar-item" href="#">🧰 Maintenance</a></li>
+        <li><a class="sidebar-item" href="#">📜 Audit log</a></li>
+        <li class="sidebar-label">Configuration</li>
+        <li><a class="sidebar-item" href="demo-admin.html">⚙ Settings</a></li>
+        <li><a class="sidebar-item" href="index.html">📚 Docs</a></li>
+      </ul>
+    </nav>
+    <div class="sidebar-footer">
+      node-hannover-03 · v4.2.1<br>
+      <span class="mono tiny">uptime 19d 11h</span>
+    </div>
+  </aside>
+  <div class="sidebar-scrim"></div>
+
+  <!-- ============ MAIN ============ -->
+  <main class="app-main">
+
+    <div class="page-head row wrap between">
+      <div>
+        <h1 style="margin:0;font-size:1.45rem">Overview</h1>
+        <p class="muted small" style="margin:2px 0 0">Hannover cluster · <span class="mono">updated 08:44:02 CET</span></p>
+      </div>
+      <div class="row wrap gap-sm">
+        <button class="btn btn-outline btn-sm" data-tip="Refresh interval: 30s">⟳ 30s</button>
+        <button class="btn btn-soft btn-sm">Export</button>
+        <button class="btn btn-primary btn-sm" data-open="dlg-deploy">Deploy</button>
+      </div>
+    </div>
+
+    <!-- KPI row -->
+    <div class="grid cols-4" style="margin-bottom:var(--pui-gap)">
+      <div class="card">
+        <div class="between"><span class="metric-label">CPU load</span><span class="badge badge-ok">ok</span></div>
+        <div class="metric-value accent">12%</div>
+        <div class="progress sm" style="margin-top:10px"><div class="progress-fill" style="width:12%"></div></div>
+      </div>
+      <div class="card">
+        <div class="between"><span class="metric-label">Memory</span><span class="delta up">2.1%</span></div>
+        <div class="metric-value warn">25.0<span class="small muted">/32 GB</span></div>
+        <div class="progress sm warn" style="margin-top:10px"><div class="progress-fill" style="width:78%"></div></div>
+      </div>
+      <div class="card">
+        <div class="between"><span class="metric-label">Requests / min</span><span class="delta up">+4.6%</span></div>
+        <div class="metric-value ok">128k</div>
+        <div class="metric-sub" style="margin-top:10px">error rate 0.42%</div>
+      </div>
+      <div class="card">
+        <div class="between"><span class="metric-label">Health score</span></div>
+        <div class="row" style="gap:14px;margin-top:2px">
+          <div style="position:relative;width:52px;height:52px">
+            <svg width="52" height="52" viewBox="0 0 52 52" aria-hidden="true">
+              <circle cx="26" cy="26" r="22" fill="none" stroke="var(--pui-raised)" stroke-width="6"/>
+              <circle cx="26" cy="26" r="22" fill="none" stroke="var(--pui-ok)" stroke-width="6"
+                      stroke-dasharray="138.2" stroke-dashoffset="20.7" transform="rotate(-90 26 26)" stroke-linecap="round"/>
+            </svg>
+            <span class="ring-val ok">85</span>
+          </div>
+          <div class="stack-sm"><span class="small"><strong class="ok">Excellent</strong></span><span class="tiny muted">94/100 · no open incidents</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- alerts -->
+    <div class="alert alert-warn" style="margin-bottom:var(--pui-gap)">
+      <div class="grow">
+        <div class="alert-title">Memory above threshold on node-04</div>
+        <p class="alert-body">78% sustained for 12 minutes (threshold 75%). Auto-scaling is proposing +1 worker node.</p>
+      </div>
+      <button class="btn btn-sm" onclick="pui.toast('Scaled worker pool +1 on node-04', { type: 'ok', title: 'Auto-scale applied' })">Scale now</button>
+    </div>
+
+    <!-- main grid -->
+    <div class="grid" style="grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); margin-bottom:var(--pui-gap)" id="main-grid">
+      <!-- left column -->
+      <div class="stack">
+        <div class="card">
+          <div class="card-header">
+            <div><h2 class="card-title">Services</h2><p class="card-sub">eu-central · hannover cluster</p></div>
+            <div class="row gap-sm">
+              <input class="input-sm" style="width:180px" placeholder="Filter…" aria-label="Filter services">
+              <button class="btn btn-sm" data-open="dlg-deploy">+ Add</button>
+            </div>
+          </div>
+          <div class="table-wrap" style="border:0">
+            <table class="table table-sm">
+              <thead><tr><th>Service</th><th class="num">RPS</th><th class="num">p95</th><th class="num">Errors</th><th>Status</th><th>Version</th></tr></thead>
+              <tbody>
+                <tr><td><strong>api-gateway</strong><div class="tiny muted">edge · 4 replicas</div></td><td class="num">12.4k</td><td class="num">28 ms</td><td class="num ok">0.1%</td><td><span class="badge badge-ok"><span class="dot"></span>healthy</span></td><td class="mono tiny">v4.2.1</td></tr>
+                <tr><td><strong>auth-service</strong><div class="tiny muted">core · 2 replicas</div></td><td class="num">3.1k</td><td class="num">41 ms</td><td class="num ok">0.0%</td><td><span class="badge badge-ok"><span class="dot"></span>healthy</span></td><td class="mono tiny">v4.2.1</td></tr>
+                <tr><td><strong>redis-cache</strong><div class="tiny muted">infra · 1 replica</div></td><td class="num">45.9k</td><td class="num">2 ms</td><td class="num warn">0.8%</td><td><span class="badge badge-warn"><span class="dot"></span>latency</span></td><td class="mono tiny">v7.4.2</td></tr>
+                <tr><td><strong>backup-queue</strong><div class="tiny muted">jobs · 1 replica</div></td><td class="num">0.2k</td><td class="num">—</td><td class="num danger">6.2%</td><td><span class="badge badge-danger"><span class="dot dot-pulse"></span>delayed</span></td><td class="mono tiny">v1.8.0</td></tr>
+                <tr><td><strong>metrics-api</strong><div class="tiny muted">obs · 2 replicas</div></td><td class="num">8.7k</td><td class="num">17 ms</td><td class="num ok">0.0%</td><td><span class="badge badge-ok"><span class="dot"></span>healthy</span></td><td class="mono tiny">v3.1.4</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="card-footer row between">
+            <span>5 of 14 services shown</span>
+            <nav class="pagination" aria-label="Services pagination">
+              <button class="page-btn">‹</button>
+              <button class="page-btn" aria-current="page">1</button>
+              <button class="page-btn">2</button>
+              <button class="page-btn">3</button>
+              <button class="page-btn">›</button>
+            </nav>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Live log — api-gateway</h2>
+            <span class="badge"><span class="dot dot-pulse" style="color:var(--pui-accent)"></span>tail -f</span>
+          </div>
+          <div class="log" style="max-height:230px">
+            <div class="log-line"><span class="log-time">08:44:02.114</span><span><span class="lvl-ok">OK</span>&nbsp;&nbsp; GET /v4/metrics 200 in 14ms — cache HIT</span></div>
+            <div class="log-line"><span class="log-time">08:44:01.987</span><span><span class="lvl-info">INF</span>&nbsp;&nbsp; rate limiter: window reset, 1.2k tokens restored</span></div>
+            <div class="log-line"><span class="log-time">08:44:01.522</span><span><span class="lvl-warn">WRN</span>&nbsp;&nbsp; upstream auth-service latency 41ms (p95 &gt; 40ms)</span></div>
+            <div class="log-line"><span class="log-time">08:44:00.301</span><span><span class="lvl-ok">OK</span>&nbsp;&nbsp; healthcheck: 4/4 replicas ready</span></div>
+            <div class="log-line"><span class="log-time">08:43:59.998</span><span><span class="lvl-err">ERR</span>&nbsp;&nbsp; POST /v4/webhooks 502 — backup-queue unreachable (retry 3/5)</span></div>
+            <div class="log-line"><span class="log-time">08:43:58.410</span><span><span class="lvl-info">INF</span>&nbsp;&nbsp; GET /v4/nodes 200 in 9ms — cache MISS</span></div>
+            <div class="log-line"><span class="log-time">08:43:57.002</span><span><span class="lvl-ok">OK</span>&nbsp;&nbsp; GET /v4/cluster 200 in 11ms — cache HIT</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- right column -->
+      <div class="stack">
+        <div class="card">
+          <div class="card-header"><h2 class="card-title">Event timeline</h2></div>
+          <ul class="timeline">
+            <li class="ok"><div class="t-time">08:44</div><div class="t-body">Deploy rev 4f2a91c completed — 14 services restarted.</div></li>
+            <li class="info"><div class="t-time">08:41</div><div class="t-body">Heartbeat acknowledged — all nodes reporting.</div></li>
+            <li class="warn"><div class="t-time">08:32</div><div class="t-body">Memory threshold crossed on node-04 (78%).</div></li>
+            <li class="danger"><div class="t-time">08:15</div><div class="t-body">Backup-queue retries failing (6.2% error rate).</div></li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><h2 class="card-title">Quick commands</h2></div>
+          <div class="stack-sm">
+            <button class="btn btn-ghost" style="justify-content:flex-start" data-copy="#cmd-cp"><span class="accent mono">$</span> clear-cache<span class="grow"></span><kbd>⏎</kbd></button>
+            <button class="btn btn-ghost" style="justify-content:flex-start"><span class="accent mono">$</span> diag --full</button>
+            <button class="btn btn-ghost" style="justify-content:flex-start"><span class="accent mono">$</span> drain node-04</button>
+            <button class="btn btn-ghost" style="justify-content:flex-start"><span class="accent mono">$</span> rollback --rev=prev</button>
+          </div>
+          <span id="cmd-cp" class="visually-hidden">clear-cache</span>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><h2 class="card-title">Disk usage</h2></div>
+          <div class="stack">
+            <div class="row between small"><span class="muted">/ (root)</span><strong class="mono">42%</strong></div>
+            <div class="progress sm"><div class="progress-fill" style="width:42%"></div></div>
+            <div class="row between small"><span class="muted">/var/lib/docker</span><strong class="mono warn">78%</strong></div>
+            <div class="progress sm warn"><div class="progress-fill" style="width:78%"></div></div>
+            <div class="row between small"><span class="muted">/backups</span><strong class="mono danger">91%</strong></div>
+            <div class="progress sm danger"><div class="progress-fill" style="width:91%"></div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><h2 class="card-title">On-call</h2></div>
+          <div class="row">
+            <span class="avatar avatar-lg">SJ</span>
+            <div class="stack-sm">
+              <strong class="small">szmelc</strong>
+              <span class="tiny muted">primary until 18:00 CET</span>
+            </div>
+            <span class="grow"></span>
+            <button class="btn btn-sm btn-outline" data-tip="Acknowledge current incident">Ack</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- dialogs -->
+<dialog id="dlg-deploy">
+  <div class="dialog-header">
+    <h3 class="dialog-title">Deploy to hannover cluster</h3>
+    <button class="btn btn-ghost btn-icon" data-close aria-label="Close">✕</button>
+  </div>
+  <div class="stack">
+    <div class="field">
+      <label>Revision</label>
+      <select><option>4f2a91c — feat: rate-limiter v2</option><option>9d31c0e — fix: cache eviction</option></select>
+      <span class="hint">Rolling deploy · zero-downtime</span>
+    </div>
+    <div class="field">
+      <label data-optional>Deploy note</label>
+      <input placeholder="What changed?">
+    </div>
+    <label class="row"><input type="checkbox" checked><span class="small">Run smoke tests before switching traffic</span></label>
+    <label class="row"><input type="checkbox" class="switch"><span class="small">Canary 10% for 15 minutes</span></label>
+  </div>
+  <div class="dialog-footer">
+    <button class="btn btn-ghost" data-close>Cancel</button>
+    <button class="btn btn-primary" aria-busy="false" id="deploy-btn" onclick="deploy(this)">Start deploy</button>
+  </div>
+</dialog>
+
+<dialog class="cmdk" id="cmdk" aria-label="Command palette">
+  <input class="cmdk-input" placeholder="Search commands, services, nodes…" aria-label="Search">
+  <div class="cmdk-list" role="listbox">
+    <div class="cmdk-item" data-cmd="restart"><span>🔄</span> Restart all services</div>
+    <div class="cmdk-item" data-cmd="cache"><span>🧹</span> Clear cache</div>
+    <div class="cmdk-item" data-cmd="diag"><span>🩺</span> Run health check</div>
+    <div class="cmdk-item" data-href="demo-admin.html"><span>⚙</span> Open settings</div>
+    <div class="cmdk-item" data-cmd="theme"><span>◐</span> Toggle theme</div>
+    <div class="cmdk-empty" hidden>No matching commands</div>
+  </div>
+  <div class="cmdk-footer"><span>↑↓ navigate</span><span>↵ run</span><span>⌘K toggle</span></div>
+</dialog>
+
+<script type="module" src="../src/pui.js"></script>
+<script>
+  window.puiActions = {
+    theme: () => pui.theme(),
+    restart: () => pui.toast("All services restarted", { type: "ok", title: "Done" }),
+    cache: () => pui.toast("Redis & OPCache flushed", { type: "info", title: "Cache cleared" }),
+    diag: () => pui.toast("14 services checked — all healthy", { type: "ok", title: "Health check" }),
+  };
+  async function deploy(btn) {
+    btn.setAttribute("aria-busy", "true");
+    await new Promise(r => setTimeout(r, 1400));
+    btn.removeAttribute("aria-busy");
+    btn.closest("dialog").close();
+    pui.toast("Deploy rev 4f2a91c finished in 21.4s", { type: "ok", title: "Zero downtime" });
+  }
+</script>
+</body>
+</html>
